@@ -4,6 +4,8 @@
 #include "layers.h"
 #include "generator.h"
 
+const int witchHutCount = 2;
+
 int euclideanDistance(int x1, int y1, int x2, int y2)
 {
     double dx = (x1 - x2);
@@ -26,7 +28,10 @@ int getBiomeAtPos(Generator *g, Pos *pos)
 int main()
 {
     long searchRange = 500;
+    int offset = witchHutCount - 4;
     Pos qhpos[4];
+    int results[3] = {0, 0, 0};
+
     Generator g;
     setupGenerator(&g, MC_1_18, 0);
 
@@ -64,8 +69,7 @@ int main()
             }
             int areaX = (int)((unsigned int)regPosX << 1u) + 1;
             int areaZ = (int)((unsigned int)regPosZ << 1u) + 1;
-            // printf("(%d,%d) (%d,%d) (%d,%d)
-            // (%d,%d)\n",qhpos[0].x,qhpos[0].z,qhpos[1].x,qhpos[1].z,qhpos[2].x,qhpos[2].z,qhpos[3].x,qhpos[3].z);
+
             int count = 0;
             applySeed(&g, 0, seed);
             int correctPos[4] = {-1, -1, -1, -1};
@@ -75,7 +79,7 @@ int main()
             }
             else
             {
-                if (count <= 0 + OFFSET)
+                if (count <= 0 + offset)
                 {
                     continue;
                 }
@@ -86,7 +90,7 @@ int main()
             }
             else
             {
-                if (count <= 1 + OFFSET)
+                if (count <= 1 + offset)
                 {
                     continue;
                 }
@@ -97,7 +101,7 @@ int main()
             }
             else
             {
-                if (count <= 2 + OFFSET)
+                if (count <= 2 + offset)
                 {
                     continue;
                 }
@@ -108,13 +112,13 @@ int main()
             }
             else
             {
-                if (count <= 3 + OFFSET)
+                if (count <= 3 + offset)
                 {
                     continue;
                 }
             }
 
-            if (count >= 4 + OFFSET)
+            if (count >= 4 + offset)
             {
                 for (int j = 0; j < count - 1; ++j)
                 {
@@ -131,14 +135,14 @@ int main()
                     int valid = 1;
                     for (int i = 0; i < maxi; ++i)
                     {
-                        if (euclideanDistance(qhpos[correctPos[i]].x, qhpos[correctPos[i]].z, x,
-                                              z) > 16384)
+                        if (euclideanDistance(
+                                qhpos[correctPos[i]].x, qhpos[correctPos[i]].z, x, z) > 16384)
                             valid = 0;
                     }
-                    if (valid && maxi >= OFFSET + 4)
+                    if (valid && maxi >= offset + 4)
                     {
                         printf("CENTER for %d huts: %d,%d\n", maxi, x, z);
-                        fprintf(fp, "CENTER for %d huts: %d,%d\n", maxi, x, z);
+                        // fprintf(fp, "CENTER for %d huts: %d,%d\n", maxi, x, z);
                         results[maxi - 2]++;
                     }
                 }
