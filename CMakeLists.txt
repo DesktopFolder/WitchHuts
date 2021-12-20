@@ -12,4 +12,4 @@ target_compile_definitions(WitchHutFinder PRIVATE -DSEED_USED=${SEED_USED})
 
 target_include_directories(WitchHutFinder PRIVATE "${CMAKE_SOURCE_DIR}/cubiomes")
 target_link_libraries(WitchHutFinder PUBLIC -lm -fwrapv)
-target_link_libraries(WitchHutFinder PUBLIC ${CMAKE_SOURCE_DIRECTORY}/cubiomes/libcubiomes.a)
+target_link_libraries(WitchHutFinder PUBLIC ${CMAKE_SOURCE_DIR}/cubiomes/libcubiomes.a)
