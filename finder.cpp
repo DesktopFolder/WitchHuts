@@ -4,25 +4,32 @@
 #include "layers.h"
 #include "generator.h"
 
-int euclideanDistance(int x1, int y1, int x2, int y2) {
+int euclideanDistance(int x1, int y1, int x2, int y2)
+{
     double dx = (x1 - x2);
     double dy = (y1 - y2);
-    return (int) (dx * dx + dy * dy);
+    return (int)(dx * dx + dy * dy);
 }
 
-Pos getStructurePos(StructureConfig /* ignored */, uint64_t seed, int rx, int rz)
+Pos getStructurePos(StructureConfig sconf, uint64_t seed, int rx, int rz)
 {
     Pos p;
-    getStructurePos(Swamp_Hut, MC_1_18, seed, rx, rz, &p);
+    getStructurePos(sconf.structType, MC_1_18, seed, rx, rz, &p);
     return p;
+}
+
+int getBiomeAtPos(Generator *g, Pos *pos)
+{
+    return getBiomeAt(g, 0, pos->x, 64, pos->z);
 }
 
 int main()
 {
     long searchRange = 500;
-    LayerStack g;
-    setupGenerator(&g, MC_1_18, 0);
     Pos qhpos[4];
+    Generator g;
+    setupGenerator(&g, MC_1_18, 0);
+
     auto featureConfig = SWAMP_HUT_CONFIG;
     uint64_t seed = SEED_USED;
     for (int regPosX = -searchRange; regPosX < searchRange; ++regPosX)
@@ -30,8 +37,8 @@ int main()
         for (int regPosZ = -searchRange; regPosZ < searchRange; ++regPosZ)
         {
             int skipTest = 0;
-            qhpos[0]     = getStructurePos(featureConfig, seed, 0 + regPosX, 0 + regPosZ);
-            qhpos[1]     = getStructurePos(featureConfig, seed, 0 + regPosX, 1 + regPosZ);
+            qhpos[0] = getStructurePos(featureConfig, seed, 0 + regPosX, 0 + regPosZ);
+            qhpos[1] = getStructurePos(featureConfig, seed, 0 + regPosX, 1 + regPosZ);
             if (euclideanDistance(qhpos[0].x, qhpos[0].z, qhpos[1].x, qhpos[1].z) < 65536)
             {
                 skipTest = 1;
@@ -60,9 +67,9 @@ int main()
             // printf("(%d,%d) (%d,%d) (%d,%d)
             // (%d,%d)\n",qhpos[0].x,qhpos[0].z,qhpos[1].x,qhpos[1].z,qhpos[2].x,qhpos[2].z,qhpos[3].x,qhpos[3].z);
             int count = 0;
-            applySeed(&g, seed);
+            applySeed(&g, 0, seed);
             int correctPos[4] = {-1, -1, -1, -1};
-            if (getBiomeAtPos(g, qhpos[0]) == swampland)
+            if (getBiomeAtPos(&g, &qhpos[0]) == swampland)
             {
                 correctPos[count++] = 0;
             }
@@ -73,7 +80,7 @@ int main()
                     continue;
                 }
             }
-            if (getBiomeAtPos(g, qhpos[1]) == swampland)
+            if (getBiomeAtPos(&g, &qhpos[1]) == swampland)
             {
                 correctPos[count++] = 1;
             }
@@ -84,7 +91,7 @@ int main()
                     continue;
                 }
             }
-            if (getBiomeAtPos(g, qhpos[2]) == swampland)
+            if (getBiomeAtPos(&g, &qhpos[2]) == swampland)
             {
                 correctPos[count++] = 2;
             }
@@ -95,7 +102,7 @@ int main()
                     continue;
                 }
             }
-            if (getBiomeAtPos(g, qhpos[3]) == swampland)
+            if (getBiomeAtPos(&g, &qhpos[3]) == swampland)
             {
                 correctPos[count++] = 3;
             }
@@ -106,21 +113,21 @@ int main()
                     continue;
                 }
             }
-            assert(count >= 4 + OFFSET);
+
             if (count >= 4 + OFFSET)
             {
                 for (int j = 0; j < count - 1; ++j)
                 {
                     int maxi = count - j;
-                    int x    = 0;
-                    int z    = 0;
+                    int x = 0;
+                    int z = 0;
                     for (int i = 0; i < maxi; ++i)
                     {
                         x += qhpos[correctPos[i]].x;
                         z += qhpos[correctPos[i]].z;
                     }
-                    x         = (int)(x / (double)maxi);
-                    z         = (int)(z / (double)maxi);
+                    x = (int)(x / (double)maxi);
+                    z = (int)(z / (double)maxi);
                     int valid = 1;
                     for (int i = 0; i < maxi; ++i)
                     {
