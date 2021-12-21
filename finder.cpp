@@ -22,7 +22,7 @@ Pos getStructurePos(StructureConfig sconf, uint64_t seed, int rx, int rz)
 
 int getBiomeAtPos(Generator *g, Pos *pos)
 {
-    return getBiomeAt(g, 0, pos->x, 64, pos->z);
+    return getBiomeAt(g, 1, pos->x, 64, pos->z);
 }
 
 int main()
