@@ -1,65 +1,42 @@
 #include <iostream>
-#include <cstdint>
-#include "finders.h"
-#include "layers.h"
-#include "generator.h"
 
-const int witchHutCount = 2;
+#include "cubiomes.hpp"
 
-int euclideanDistance(int x1, int y1, int x2, int y2)
-{
-    double dx = (x1 - x2);
-    double dy = (y1 - y2);
-    return (int)(dx * dx + dy * dy);
-}
-
-Pos getStructurePos(StructureConfig sconf, uint64_t seed, int rx, int rz)
-{
-    Pos p;
-    getStructurePos(sconf.structType, MC_1_18, seed, rx, rz, &p);
-    return p;
-}
-
-int getBiomeAtPos(Generator *g, Pos *pos)
-{
-    return getBiomeAt(g, 1, pos->x, 64, pos->z);
-}
+constexpr int witchHutCount = 2;
 
 int main()
 {
     long searchRange = 500;
     int offset = witchHutCount - 4;
-    Pos qhpos[4];
+    Point qhpos[4];
     int results[3] = {0, 0, 0};
 
-    Generator g;
-    setupGenerator(&g, MC_1_18, 0);
+    SeedContext context{};
 
-    auto featureConfig = SWAMP_HUT_CONFIG;
-    uint64_t seed = SEED_USED;
+    seed_t seed = SEED_USED;
     for (int regPosX = -searchRange; regPosX < searchRange; ++regPosX)
     {
         for (int regPosZ = -searchRange; regPosZ < searchRange; ++regPosZ)
         {
             int skipTest = 0;
-            qhpos[0] = getStructurePos(featureConfig, seed, 0 + regPosX, 0 + regPosZ);
-            qhpos[1] = getStructurePos(featureConfig, seed, 0 + regPosX, 1 + regPosZ);
-            if (euclideanDistance(qhpos[0].x, qhpos[0].z, qhpos[1].x, qhpos[1].z) < 65536)
+            qhpos[0] = getWitchHutPosition(seed, {0 + regPosX, 0 + regPosZ});
+            qhpos[1] = getWitchHutPosition(seed, {0 + regPosX, 1 + regPosZ});
+            if (distance_squared(qhpos[0], qhpos[1]) < 65536)
             {
                 skipTest = 1;
             }
-            qhpos[2] = getStructurePos(featureConfig, seed, 1 + regPosX, 0 + regPosZ);
+            qhpos[2] = getWitchHutPosition(seed, {1 + regPosX, 0 + regPosZ});
             if (skipTest ||
-                euclideanDistance(qhpos[0].x, qhpos[0].z, qhpos[2].x, qhpos[2].z) < 65536 ||
-                euclideanDistance(qhpos[1].x, qhpos[1].z, qhpos[2].x, qhpos[2].z) < 65536)
+                distance_squared(qhpos[0], qhpos[2]) < 65536 ||
+                distance_squared(qhpos[1], qhpos[2]) < 65536)
             {
                 skipTest = 1;
             }
-            qhpos[3] = getStructurePos(featureConfig, seed, 1 + regPosX, 1 + regPosZ);
+            qhpos[3] = getWitchHutPosition(seed, {1 + regPosX, 1 + regPosZ});
             if (skipTest ||
-                euclideanDistance(qhpos[0].x, qhpos[0].z, qhpos[3].x, qhpos[3].z) < 65536 ||
-                euclideanDistance(qhpos[1].x, qhpos[1].z, qhpos[3].x, qhpos[3].z) < 65536 ||
-                euclideanDistance(qhpos[2].x, qhpos[2].z, qhpos[3].x, qhpos[3].z) < 65536)
+                distance_squared(qhpos[0], qhpos[3]) < 65536 ||
+                distance_squared(qhpos[1], qhpos[3]) < 65536 ||
+                distance_squared(qhpos[2], qhpos[3]) < 65536)
             {
                 skipTest = 1;
             }
@@ -71,9 +48,9 @@ int main()
             int areaZ = (int)((unsigned int)regPosZ << 1u) + 1;
 
             int count = 0;
-            applySeed(&g, 0, seed);
+            context.applySeed(seed);
             int correctPos[4] = {-1, -1, -1, -1};
-            if (getBiomeAtPos(&g, &qhpos[0]) == swampland)
+            if (getBiomeAt(context, qhpos[0]) == swampland)
             {
                 correctPos[count++] = 0;
             }
@@ -84,7 +61,7 @@ int main()
                     continue;
                 }
             }
-            if (getBiomeAtPos(&g, &qhpos[1]) == swampland)
+            if (getBiomeAt(context, qhpos[1]) == swampland)
             {
                 correctPos[count++] = 1;
             }
@@ -95,7 +72,7 @@ int main()
                     continue;
                 }
             }
-            if (getBiomeAtPos(&g, &qhpos[2]) == swampland)
+            if (getBiomeAt(context, qhpos[2]) == swampland)
             {
                 correctPos[count++] = 2;
             }
@@ -106,7 +83,7 @@ int main()
                     continue;
                 }
             }
-            if (getBiomeAtPos(&g, &qhpos[3]) == swampland)
+            if (getBiomeAt(context, qhpos[3]) == swampland)
             {
                 correctPos[count++] = 3;
             }
@@ -135,8 +112,8 @@ int main()
                     int valid = 1;
                     for (int i = 0; i < maxi; ++i)
                     {
-                        if (euclideanDistance(
-                                qhpos[correctPos[i]].x, qhpos[correctPos[i]].z, x, z) > 16384)
+                        if (distance_squared(
+                                qhpos[correctPos[i]], {x, z}) > 16384)
                             valid = 0;
                     }
                     if (valid && maxi >= offset + 4)
