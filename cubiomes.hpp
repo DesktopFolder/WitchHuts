@@ -51,6 +51,15 @@ struct SeedContext
         // It's great when every function call requires a comment!
         ::applySeed(&generator, 0 /* Overworld */, seed);
     }
+
+    int getBiomeAt(Point p)
+    {
+        // We hardcode the Y level we search at for witch huts
+        // Alternatively, we could take this as a template param
+        constexpr int yLevel = 64;
+        return ::getBiomeAt(&generator, 1 /* Get biome at block position (cool flag system :D)*/,
+                          p.x, 64, p.z);
+    }
 };
 
 // Cubiomes -> getStructurePos wrapper.

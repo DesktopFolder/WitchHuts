@@ -4,7 +4,7 @@ A port & partial (WIP) reimplementation of [hube12/WitchHutFinder](https://githu
 
 To build, you will want CMake and a working C++ compiler.
 
-```
+```sh
 # Clone the repository, and Cubiomes (required dependency)
 git clone --recursive https://github.com/DesktopFolder/WitchHuts && cd WitchHuts
 # Create the build directory (for cleanliness)
@@ -13,4 +13,13 @@ mkdir build && cd build
 cmake .. -DSEED_USED=YOURSEED && make
 # Run the finder
 ./WitchHutFinder
+```
+
+#### Quick Documentation
+
+**Providing an output file:**
+```sh
+# --output/-o
+./WitchHutFinder -o output_file
+# No progress indicators while doing this (at present)
 ```
