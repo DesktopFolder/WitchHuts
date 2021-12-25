@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
             }
             else
             {
-                output.filename = arg.name;
+                output.filename = arg.values[0];
             }
         }
     }
