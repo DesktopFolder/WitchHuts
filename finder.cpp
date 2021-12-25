@@ -37,6 +37,7 @@ private:
             {
                 file.open(*filename);
             }
+            file << s;
         }
         else
         {
