@@ -15,7 +15,9 @@ add_custom_target(
 # add the executable
 add_executable(WitchHutFinder finder.cpp)
 
-target_compile_definitions(WitchHutFinder PRIVATE -DSEED_USED=${SEED_USED})
+if (OPTIMIZE_SEED)
+    target_compile_definitions(WitchHutFinder PRIVATE -DOPTIMIZE_SEED=${OPTIMIZE_SEED})
+endif()
 
 target_include_directories(WitchHutFinder PRIVATE "${CMAKE_SOURCE_DIR}/cubiomes")
 target_link_libraries(WitchHutFinder PUBLIC -lm -fwrapv)

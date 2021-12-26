@@ -1,15 +1,18 @@
 #include <fstream>
 #include <iostream>
 #include <optional>
+#include <string>
 
 #include "cubiomes.hpp"
 #include "parser.hpp"
+#include "seed.hpp"
 
 constexpr int witchHutCount = 2;
 
 struct OutputManager
 {
     std::optional<std::string> filename;
+    static constexpr size_t report_steps = 10;
 
     template <typename S>
     void write(S str)
@@ -25,8 +28,19 @@ struct OutputManager
         write(std::forward<Ss>(strs)...);
     }
 
+    template <typename... Ss>
+    void step(Ss... strs)
+    {
+        write(std::forward<Ss>(strs)...);
+        if (++steps % report_steps == 0)
+        {
+            std::cout << "Found " << steps << " witch huts...\n";
+        }
+    }
+
 private:
     std::ofstream file;
+    size_t steps{};
 
     template <typename T>
     void _write(const T& s)
@@ -51,9 +65,12 @@ int main(int argc, char* argv[])
     ArgumentParser ap(argc, argv);
     // Scoped stuff
     auto output = OutputManager{};
+    std::string seed_str;
     while (not ap.done())
     {
         // Parse arguments real quick.
+        // Wow, this is hilariously ugly. Oh well.
+        // Using libraries is for the weak.
         const auto arg = ap.consume();
         if (arg.name_clean() == "help")
         {
@@ -72,7 +89,38 @@ int main(int argc, char* argv[])
                 output.filename = arg.values[0];
             }
         }
+        else if (arg.name_clean() == "s" || arg.name_clean() == "seed")
+        {
+            if constexpr (optimize_seed())
+            {
+                std::cout << "--seed/-s ignored (conflicts with compilation parameter)\n";
+            }
+            else
+            {
+                if (arg.values.empty())
+                {
+                    std::cout << "--seed/-s requires one argument (the seed)\n";
+                }
+                else
+                {
+                    seed_str = arg.values[0];
+                }
+            }
+        }
     }
+
+    // Annnnd we end up needing macros anyways.
+    // Oh well.
+#ifdef OPTIMIZE_SEED
+    constexpr seed_t seed = SEED_USED;
+#else
+    if (seed_str == "")
+    {
+        std::cout << "Error: Seed not provided. Use [--seed SEED] to set.\n";
+        return 1;
+    }
+    const seed_t seed = std::stol(seed_str);
+#endif
 
     long searchRange = 500;
     int offset       = witchHutCount - 4;
@@ -81,7 +129,6 @@ int main(int argc, char* argv[])
 
     SeedContext context{};
 
-    seed_t seed = SEED_USED;
     for (int regPosX = -searchRange; regPosX < searchRange; ++regPosX)
     {
         for (int regPosZ = -searchRange; regPosZ < searchRange; ++regPosZ)
@@ -182,7 +229,7 @@ int main(int argc, char* argv[])
                     }
                     if (valid && maxi >= offset + 4)
                     {
-                        output.write("CENTER for ", maxi, " huts: ", x, ", ", z);
+                        output.step("CENTER for ", maxi, " huts: ", x, ", ", z);
                         // fprintf(fp, "CENTER for %d huts: %d,%d\n", maxi, x, z);
                         results[maxi - 2]++;
                     }
