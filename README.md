@@ -10,7 +10,9 @@ git clone --recursive https://github.com/DesktopFolder/WitchHuts && cd WitchHuts
 # Create the build directory (for cleanliness)
 mkdir build && cd build
 # Generate the build files & build the project
-cmake .. -DSEED_USED=YOURSEED && make
+# -DOPTIMIZE_SEED=1234 (for example seed 1234) if you know the seed prior to running the tool
+# Otherwise, see below for using the CLI to specify a seed
+cmake .. -DOPTIMIZE_SEED=YOURSEED && make
 # Run the finder
 ./WitchHutFinder
 ```
@@ -21,5 +23,11 @@ cmake .. -DSEED_USED=YOURSEED && make
 ```sh
 # --output/-o
 ./WitchHutFinder -o output_file
-# No progress indicators while doing this (at present)
+# Will print progress indicators every 10 huts found.
+```
+
+**Providing a seed:**
+```sh
+# --seed/-s
+./WitchHutFinder -s some_seed
 ```
