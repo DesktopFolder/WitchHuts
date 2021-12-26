@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
     // Annnnd we end up needing macros anyways.
     // Oh well.
 #ifdef OPTIMIZE_SEED
-    constexpr seed_t seed = SEED_USED;
+    constexpr seed_t seed = OPTIMIZE_SEED;
 #else
     if (seed_str == "")
     {
