@@ -1,3 +1,4 @@
+#pragma once
 /**
  * C++ wrapper for Cubiomes
  * Header-only; minimal wrapper
