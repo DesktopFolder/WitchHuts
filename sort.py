@@ -8,6 +8,12 @@
 # also deduplicates, because why not
 
 import sys, re
+args = sys.argv[1:]
+if '--clean' in args:
+    clean = True
+else:
+    clean = False
+args = [x for x in args if not x.startswith('-')]
 
 whre = re.compile(r'CENTER for \d huts: -?(\d+), *-?(\d+)\s*$')
 def whsort(l):
@@ -18,5 +24,10 @@ def whsort(l):
     y = int(mo.group(2))
     return x**2 + y**2
 
+def cleaned(l):
+    if not clean:
+        return l
+    return l.split(':')[1].lstrip()
+
 with open(sys.argv[1], 'r') as file:
-    print(''.join(sorted(set(file.readlines()), key=whsort)))
+    print(''.join([cleaned(x) for x in sorted(set(file.readlines()), key=whsort)]))
