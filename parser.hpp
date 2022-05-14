@@ -10,6 +10,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <algorithm>
 
 /* A few basic algorithms, because we can */
 // This should use sfinae/concepts for a few specializations to avoid references.

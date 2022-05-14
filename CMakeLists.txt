@@ -20,7 +20,7 @@ if (OPTIMIZE_SEED)
 endif()
 
 target_include_directories(WitchHutFinder PRIVATE "${CMAKE_SOURCE_DIR}/cubiomes")
-target_link_libraries(WitchHutFinder PUBLIC -lm -fwrapv)
+target_link_libraries(WitchHutFinder PUBLIC -lm -fwrapv -lpthread)
 target_link_libraries(WitchHutFinder PUBLIC ${CMAKE_SOURCE_DIR}/cubiomes/libcubiomes.a)
 
 # Add the cubiomes dependency to ensure it is built.
